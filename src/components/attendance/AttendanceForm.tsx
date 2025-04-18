@@ -22,7 +22,7 @@ const AttendanceForm = () => {
   const [shift, setShift] = useState<ShiftType>("1st Shift");
   const [todayDate] = useState(format(new Date(), "yyyy-MM-dd"));
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!clientId || !employeeId) {
