@@ -1,69 +1,91 @@
-
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { AttendanceRecord, Client, Employee } from "@/types";
+import React, { createContext, useContext, useState, ReactNode } from "react";
+import { Client, Employee, AttendanceRecord } from "@/types";
 
 interface DataContextType {
   clients: Client[];
   employees: Employee[];
   attendanceRecords: AttendanceRecord[];
-  addAttendanceRecord: (record: Omit<AttendanceRecord, "id" | "createdAt">) => void;
-  getEmployeesByClient: (clientId: string) => Employee[];
-  getClientById: (clientId: string) => Client | undefined;
-  getEmployeeById: (employeeId: string) => Employee | undefined;
+  addClient: (client: Client) => void;
+  addEmployee: (employee: Employee) => void;
+  addAttendanceRecord: (record: AttendanceRecord) => void;
+  updateAttendanceRecord: (id: string, updates: Partial<AttendanceRecord>) => void;
+  deleteAttendanceRecord: (id: string) => void;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
-// Sample data for demo
-const SAMPLE_CLIENTS: Client[] = [
-  { id: "1", name: "Acme Corp" },
-  { id: "2", name: "Globex Industries" },
-  { id: "3", name: "Stark Enterprises" },
-];
-
-const SAMPLE_EMPLOYEES: Employee[] = [
-  { id: "1", name: "John Doe", clientId: "1" },
-  { id: "2", name: "Jane Smith", clientId: "1" },
-  { id: "3", name: "Alice Johnson", clientId: "2" },
-  { id: "4", name: "Bob Brown", clientId: "2" },
-  { id: "5", name: "Charlie Davis", clientId: "3" },
-];
-
 export const DataProvider = ({ children }: { children: ReactNode }) => {
-  const [clients, setClients] = useState<Client[]>(SAMPLE_CLIENTS);
-  const [employees, setEmployees] = useState<Employee[]>(SAMPLE_EMPLOYEES);
-  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
+  // Sample data
+  const [clients, setClients] = useState<Client[]>([
+    { id: "client-1", name: "ABC Construction" },
+    { id: "client-2", name: "XYZ Industries" },
+  ]);
 
-  useEffect(() => {
-    // Load data from localStorage on initial load
-    const storedRecords = localStorage.getItem("attendanceRecords");
-    if (storedRecords) {
-      setAttendanceRecords(JSON.parse(storedRecords));
-    }
-  }, []);
+  const [employees, setEmployees] = useState<Employee[]>([
+    { id: "emp-1", name: "John Doe", clientId: "client-1" },
+    { id: "emp-2", name: "Jane Smith", clientId: "client-1" },
+    { id: "emp-3", name: "Bob Johnson", clientId: "client-2" },
+  ]);
 
-  const addAttendanceRecord = (record: Omit<AttendanceRecord, "id" | "createdAt">) => {
-    const newRecord: AttendanceRecord = {
-      ...record,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-    };
+  const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([
+    {
+      id: "att-1",
+      date: "2025-04-18",
+      employeeId: "emp-1",
+      employeeName: "John Doe",
+      clientId: "client-1",
+      clientName: "ABC Construction",
+      status: "Present",
+      type: "Full day",
+      shift: "1st Shift",
+      createdAt: "2025-04-18T08:00:00Z",
+    },
+    {
+      id: "att-2",
+      date: "2025-04-18",
+      employeeId: "emp-2",
+      employeeName: "Jane Smith",
+      clientId: "client-1",
+      clientName: "ABC Construction",
+      status: "Absent",
+      type: "Full day",
+      shift: "1st Shift",
+      createdAt: "2025-04-18T08:05:00Z",
+    },
+    {
+      id: "att-3",
+      date: "2025-04-17",
+      employeeId: "emp-1",
+      employeeName: "John Doe",
+      clientId: "client-1",
+      clientName: "ABC Construction",
+      status: "Present",
+      type: "Full day",
+      shift: "1st Shift",
+      createdAt: "2025-04-17T08:00:00Z",
+    },
+  ]);
 
-    const updatedRecords = [...attendanceRecords, newRecord];
-    setAttendanceRecords(updatedRecords);
-    localStorage.setItem("attendanceRecords", JSON.stringify(updatedRecords));
+  const addClient = (client: Client) => {
+    setClients((prev) => [...prev, client]);
   };
 
-  const getEmployeesByClient = (clientId: string) => {
-    return employees.filter((employee) => employee.clientId === clientId);
+  const addEmployee = (employee: Employee) => {
+    setEmployees((prev) => [...prev, employee]);
   };
 
-  const getClientById = (clientId: string) => {
-    return clients.find((client) => client.id === clientId);
+  const addAttendanceRecord = (record: AttendanceRecord) => {
+    setAttendanceRecords((prev) => [...prev, record]);
   };
 
-  const getEmployeeById = (employeeId: string) => {
-    return employees.find((employee) => employee.id === employeeId);
+  const updateAttendanceRecord = (id: string, updates: Partial<AttendanceRecord>) => {
+    setAttendanceRecords((prev) =>
+      prev.map((record) => (record.id === id ? { ...record, ...updates } : record))
+    );
+  };
+
+  const deleteAttendanceRecord = (id: string) => {
+    setAttendanceRecords((prev) => prev.filter((record) => record.id !== id));
   };
 
   return (
@@ -72,10 +94,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         clients,
         employees,
         attendanceRecords,
+        addClient,
+        addEmployee,
         addAttendanceRecord,
-        getEmployeesByClient,
-        getClientById,
-        getEmployeeById,
+        updateAttendanceRecord,
+        deleteAttendanceRecord,
       }}
     >
       {children}

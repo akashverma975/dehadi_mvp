@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { UserRound } from "lucide-react";
 import { UserRole } from "@/types";
 import Header from "@/components/Header";
 import Dashboard from "@/components/Dashboard";
-import AttendanceForm from "@/components/attendance/AttendanceForm";
+import ManagerDashboard from "@/components/ManagerDashboard";
 import Login from "@/components/Login";
 import { useAuth } from "@/context/AuthContext";
 
@@ -45,7 +44,7 @@ const Index = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="employee">Employee</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
                 </SelectContent>
               </Select>
               <Button 
@@ -62,22 +61,20 @@ const Index = () => {
     );
   }
 
-  // Show login component for admin role if not authenticated
-  if (role === "admin" && !isAuthenticated) {
+  // Show login component if not authenticated
+  if (!isAuthenticated) {
     return <Login role={role} />;
   }
 
-  // Show dashboard when admin is authenticated
+  // Show appropriate dashboard based on role
   return (
     <div className="min-h-screen flex flex-col bg-secondary/50">
       <Header userRole={user?.role || role} />
       <main className="flex-1 container mx-auto p-4 md:p-6">
-        {role === "admin" || user?.role === "admin" ? (
+        {(user?.role === "admin" || role === "admin") ? (
           <Dashboard />
         ) : (
-          <div className="py-8">
-            <AttendanceForm />
-          </div>
+          <ManagerDashboard />
         )}
       </main>
       <footer className="bg-white border-t border-border py-4">

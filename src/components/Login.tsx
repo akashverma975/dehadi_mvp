@@ -1,81 +1,139 @@
-
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { UserRole } from "@/types";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { UserRound, LogIn } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { Lock, UserRound } from "lucide-react";
+
+const formSchema = z.object({
+  username: z.string().min(3, {
+    message: "Username must be at least 3 characters.",
+  }),
+  password: z.string().min(6, {
+    message: "Password must be at least 6 characters.",
+  }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface LoginProps {
   role: UserRole;
 }
 
 const Login = ({ role }: LoginProps) => {
-  const [username, setUsername] = useState("");
-  const [error, setError] = useState("");
   const { login } = useAuth();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    
-    if (!username.trim()) {
-      setError("Username is required");
-      return;
-    }
-    
-    const success = login(username, role);
-    if (success) {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (values: FormValues) => {
+    setIsLoading(true);
+    try {
+      const success = await login(values.username, values.password, role);
+      
+      if (success) {
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${values.username}!`,
+        });
+      } else {
+        toast({
+          title: "Login failed",
+          description: "Invalid username or password.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Login successful",
-        description: "Welcome to the admin dashboard",
+        title: "Error",
+        description: "An error occurred during login.",
+        variant: "destructive",
       });
-    } else {
-      setError("Invalid admin credentials");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-secondary">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="space-y-1">
+      <Card className="w-full max-w-md">
+        <CardHeader>
           <div className="flex justify-center mb-4">
             <div className="p-2 bg-primary text-primary-foreground rounded-full">
               <UserRound size={32} />
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">Admin Login</CardTitle>
+          <CardTitle className="text-2xl text-center">Login to Attendify</CardTitle>
           <CardDescription className="text-center">
-            Please enter your admin credentials
+            Enter your credentials to access the {role === "admin" ? "admin" : "manager"} panel
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit}>
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="username">Username</Label>
-                <Input
-                  id="username"
-                  placeholder="Enter admin username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                />
-              </div>
-              {error && (
-                <div className="text-destructive text-sm">{error}</div>
-              )}
-              <Button type="submit" className="w-full" size="lg">
-                <LogIn className="mr-2 h-4 w-4" /> Sign In
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter your username" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="Enter your password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <Button 
+                type="submit" 
+                className="w-full" 
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  "Logging in..."
+                ) : (
+                  <>
+                    <Lock className="mr-2 h-4 w-4" /> Login
+                  </>
+                )}
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                For demo: Use "admin" with Admin role
-              </p>
-            </div>
-          </form>
+            </form>
+          </Form>
         </CardContent>
       </Card>
     </div>
