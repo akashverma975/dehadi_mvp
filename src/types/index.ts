@@ -1,7 +1,11 @@
+
+export type UserRole = 'admin' | 'employee';
+
 export interface User {
   id: string;
-  email: string;
-  role: 'admin' | 'user';
+  username: string;
+  name: string;
+  role: UserRole;
 }
 
 export interface Client {
@@ -12,17 +16,22 @@ export interface Client {
 export interface Employee {
   id: string;
   name: string;
-  email: string;
-  client_id: string;
+  clientId: string;
 }
+
+export type AttendanceStatus = 'Present' | 'Absent';
+export type AttendanceType = 'Full day' | 'Half day';
+export type ShiftType = '1st Shift' | '2nd Shift' | '3rd Shift';
 
 export interface AttendanceRecord {
   id: string;
-  employee_id: string;
-  client_id: string;
   date: string;
-  status: 'present' | 'absent';
-  type: 'full_day' | 'half_day';
-  shift: '1st' | '2nd' | '3rd';
-  created_at: string;
+  employeeId: string;
+  employeeName: string;
+  clientId: string;
+  clientName: string;
+  status: AttendanceStatus;
+  type: AttendanceType;
+  shift: ShiftType;
+  createdAt: string;
 }
