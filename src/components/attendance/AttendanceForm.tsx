@@ -49,7 +49,7 @@ const AttendanceForm = () => {
     
       // Add the record
       await addAttendanceRecord({
-        id: `att-${Date.now()}`,
+        id: crypto.randomUUID(),
         date: todayDate,
         employeeId,
         employeeName: employee.name,
