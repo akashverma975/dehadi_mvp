@@ -47,22 +47,24 @@ const AttendanceForm = () => {
       return;
     }
     
-    // Add the record
-    addAttendanceRecord({
-      date: todayDate,
-      employeeId,
-      employeeName: employee.name,
-      clientId,
-      clientName: client.name,
-      status,
-      type,
-      shift
-    });
-    
-    toast({
-      title: "Success",
-      description: "Attendance record submitted successfully",
-    });
+      // Add the record
+      await addAttendanceRecord({
+        id: `att-${Date.now()}`,
+        date: todayDate,
+        employeeId,
+        employeeName: employee.name,
+        clientId,
+        clientName: client.name,
+        status,
+        type,
+        shift,
+        createdAt: new Date().toISOString()
+      });
+      
+      toast({
+        title: "Success",
+        description: "Attendance record submitted successfully",
+      });
     
     // Reset form except for client and employee
     setStatus("Present");

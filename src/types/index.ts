@@ -1,4 +1,3 @@
-
 export type UserRole = 'admin' | 'manager';
 
 export interface User {
@@ -16,7 +15,8 @@ export interface Client {
 export interface Employee {
   id: string;
   name: string;
-  clientId: string;
+  phoneNumber: string;
+  clientId?: string; // Make clientId optional
 }
 
 export type AttendanceStatus = 'Present' | 'Absent';

@@ -67,22 +67,25 @@ export type Database = {
       }
       employees: {
         Row: {
-          client_id: string
+          client_id: string | null
           created_at: string
           id: string
           name: string
+          phone_number: string
         }
         Insert: {
-          client_id: string
+          client_id?: string | null
           created_at?: string
           id?: string
           name: string
+          phone_number: string
         }
         Update: {
-          client_id?: string
+          client_id?: string | null
           created_at?: string
           id?: string
           name?: string
+          phone_number?: string
         }
         Relationships: [
           {

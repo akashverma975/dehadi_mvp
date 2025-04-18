@@ -1,23 +1,55 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CalendarDays, UserPlus, Building, ClipboardList } from "lucide-react";
+import { CalendarDays, UserPlus, Building, ClipboardList, RefreshCw } from "lucide-react";
 import AttendanceForm from "./attendance/AttendanceForm";
 import AttendanceTable from "./AttendanceTable";
 import { useData } from "@/context/DataContext";
 import { format } from "date-fns";
 import ClientForm from "./client/ClientForm";
 import EmployeeForm from "./employee/EmployeeForm";
+import { Button } from "./ui/button";
 
 const ManagerDashboard = () => {
-  const { attendanceRecords } = useData();
+  const { attendanceRecords, fetchData, isLoading } = useData();
   const [activeTab, setActiveTab] = useState("attendance");
+  const [refreshing, setRefreshing] = useState(false);
   
   // Get today's date in YYYY-MM-DD format
   const today = format(new Date(), "yyyy-MM-dd");
   
+  // Function to refresh data
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchData();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+  
+  // Fetch data on initial load
+  useEffect(() => {
+    fetchData();
+  }, []);
+  
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Manager Dashboard</h2>
+        <Button 
+          variant="outline" 
+          onClick={handleRefresh}
+          disabled={refreshing || isLoading}
+          className="flex items-center gap-1"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh Data'}
+        </Button>
+      </div>
+      
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid grid-cols-3 mb-8">
           <TabsTrigger value="attendance" className="flex items-center gap-1">

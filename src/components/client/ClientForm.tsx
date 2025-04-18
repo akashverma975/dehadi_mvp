@@ -44,8 +44,8 @@ const ClientForm = () => {
         name: values.name,
       };
       
-      // Add the client
-      addClient(newClient);
+      // Add the client to Supabase and state
+      await addClient(newClient);
       
       // Show success message
       toast({

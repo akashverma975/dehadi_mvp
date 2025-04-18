@@ -1,13 +1,15 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { CalendarDays, UserCheck, UserX, Building, Download } from "lucide-react";
+import { CalendarDays, UserCheck, UserX, Building, Download, RefreshCw } from "lucide-react";
 import AttendanceTable from "./AttendanceTable";
 import { useData } from "@/context/DataContext";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
+import { useEffect, useState } from "react";
 
 const Dashboard = () => {
-  const { attendanceRecords, clients, employees } = useData();
+  const { attendanceRecords, clients, employees, fetchData, isLoading } = useData();
+  const [refreshing, setRefreshing] = useState(false);
   
   // Get today's date in YYYY-MM-DD format
   const today = format(new Date(), "yyyy-MM-dd");
@@ -50,6 +52,18 @@ const Dashboard = () => {
     },
   ];
   
+  // Function to refresh data
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await fetchData();
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+  
   // Function to export attendance data to Excel
   const exportToExcel = (data: any[], fileName: string) => {
     // Convert data to CSV format
@@ -89,6 +103,19 @@ const Dashboard = () => {
   
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">Dashboard</h2>
+        <Button 
+          variant="outline" 
+          onClick={handleRefresh}
+          disabled={refreshing || isLoading}
+          className="flex items-center gap-1"
+        >
+          <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Refreshing...' : 'Refresh Data'}
+        </Button>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat, index) => (
           <Card key={index}>

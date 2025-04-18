@@ -12,13 +12,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { useData } from "@/context/DataContext";
 
@@ -26,15 +19,15 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: "Employee name must be at least 2 characters.",
   }),
-  clientId: z.string({
-    required_error: "Please select a client.",
+  phoneNumber: z.string().min(6, {
+    message: "Phone number must be at least 6 characters.",
   }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
 const EmployeeForm = () => {
-  const { clients, addEmployee } = useData();
+  const { addEmployee } = useData();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -42,7 +35,7 @@ const EmployeeForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      clientId: "",
+      phoneNumber: "",
     },
   });
 
@@ -53,11 +46,11 @@ const EmployeeForm = () => {
       const newEmployee = {
         id: `employee-${Date.now()}`,
         name: values.name,
-        clientId: values.clientId,
+        phoneNumber: values.phoneNumber,
       };
       
-      // Add the employee
-      addEmployee(newEmployee);
+      // Add the employee to database and state
+      await addEmployee(newEmployee);
       
       // Show success message
       toast({
@@ -73,6 +66,7 @@ const EmployeeForm = () => {
         description: "Failed to add employee. Please try again.",
         variant: "destructive",
       });
+      console.error("Error adding employee:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -97,24 +91,13 @@ const EmployeeForm = () => {
         
         <FormField
           control={form.control}
-          name="clientId"
+          name="phoneNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Assigned Client</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a client" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter phone number" {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
