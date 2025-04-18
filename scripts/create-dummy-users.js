@@ -9,7 +9,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 async function createDummyUsers() {
   // Admin user
   const { error: adminError } = await supabase.auth.signUp({
-    email: 'admin@example.com',
+    email: 'bacahin157@f5url.com',
     password: 'Admin@123',
     options: {
       data: {
@@ -27,7 +27,7 @@ async function createDummyUsers() {
   
   // Manager user
   const { error: managerError } = await supabase.auth.signUp({
-    email: 'manager@example.com',
+    email: 'nifawev124@agiuse.com',
     password: 'Manager@123',
     options: {
       data: {
