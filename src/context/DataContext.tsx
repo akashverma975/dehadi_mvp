@@ -10,6 +10,8 @@ interface DataContextType {
   addAttendanceRecord: (record: AttendanceRecord) => void;
   updateAttendanceRecord: (id: string, updates: Partial<AttendanceRecord>) => void;
   deleteAttendanceRecord: (id: string) => void;
+  getClientById: (id: string) => Client | undefined;
+  getEmployeeById: (id: string) => Employee | undefined;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -88,6 +90,15 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
     setAttendanceRecords((prev) => prev.filter((record) => record.id !== id));
   };
 
+  // Helper functions to get entities by ID
+  const getClientById = (id: string) => {
+    return clients.find(client => client.id === id);
+  };
+
+  const getEmployeeById = (id: string) => {
+    return employees.find(employee => employee.id === id);
+  };
+
   return (
     <DataContext.Provider
       value={{
@@ -99,6 +110,8 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
         addAttendanceRecord,
         updateAttendanceRecord,
         deleteAttendanceRecord,
+        getClientById,
+        getEmployeeById
       }}
     >
       {children}
