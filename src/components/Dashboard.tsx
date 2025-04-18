@@ -6,9 +6,11 @@ import { useData } from "@/context/DataContext";
 import { format } from "date-fns";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 const Dashboard = () => {
   const { attendanceRecords, clients, employees, fetchData, isLoading } = useData();
+  const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   
   // Get today's date in YYYY-MM-DD format
@@ -63,6 +65,13 @@ const Dashboard = () => {
       setRefreshing(false);
     }
   };
+  
+  // Fetch data when the component mounts or when user role changes
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      handleRefresh();
+    }
+  }, [user?.role]);
   
   // Function to export attendance data to Excel
   const exportToExcel = (data: any[], fileName: string) => {

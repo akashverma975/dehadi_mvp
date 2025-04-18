@@ -25,7 +25,6 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const [attendanceRecords, setAttendanceRecords] = useState<AttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-
   // Fetch all data from Supabase
   const fetchData = async () => {
     setIsLoading(true);
@@ -37,12 +36,16 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       
       if (clientsError) {
         console.error("Error fetching clients:", clientsError);
+        throw clientsError;
       } else if (clientsData) {
         const formattedClients: Client[] = clientsData.map(client => ({
           id: client.id,
           name: client.name
         }));
         setClients(formattedClients);
+      } else {
+        console.warn("No clients data returned from Supabase");
+        setClients([]);
       }
       
       // Fetch employees
@@ -52,6 +55,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       
       if (employeesError) {
         console.error("Error fetching employees:", employeesError);
+        throw employeesError;
       } else if (employeesData) {
         const formattedEmployees: Employee[] = employeesData.map(employee => ({
           id: employee.id,
@@ -60,6 +64,9 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
           clientId: employee.client_id || undefined
         }));
         setEmployees(formattedEmployees);
+      } else {
+        console.warn("No employees data returned from Supabase");
+        setEmployees([]);
       }
       
       // Fetch attendance records
@@ -70,6 +77,7 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
       
       if (attendanceError) {
         console.error("Error fetching attendance records:", attendanceError);
+        throw attendanceError;
       } else if (attendanceData) {
         const formattedRecords: AttendanceRecord[] = attendanceData.map(record => ({
           id: record.id,
@@ -84,9 +92,16 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
           createdAt: record.created_at
         }));
         setAttendanceRecords(formattedRecords);
+      } else {
+        console.warn("No attendance data returned from Supabase");
+        setAttendanceRecords([]);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
+      // Set empty arrays to prevent undefined errors in the UI
+      setClients([]);
+      setEmployees([]);
+      setAttendanceRecords([]);
     } finally {
       setIsLoading(false);
     }
@@ -279,6 +294,11 @@ export const DataProvider = ({ children }: { children: ReactNode }) => {
   const getEmployeeById = (id: string) => {
     return employees.find(employee => employee.id === id);
   };
+
+  // Load data on initial mount
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <DataContext.Provider
