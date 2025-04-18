@@ -1,4 +1,3 @@
-
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useData } from "@/context/DataContext";
@@ -43,28 +42,23 @@ const AttendanceTable = ({ filterDate }: AttendanceTableProps) => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {sortedRecords.map((record) => {
-            const employee = getEmployeeById(record.employeeId);
-            const client = employee ? getClientById(employee.clientId) : null;
-            
-            return (
-              <TableRow key={record.id}>
-                <TableCell>{record.date}</TableCell>
-                <TableCell>{employee?.name || "Unknown"}</TableCell>
-                <TableCell>{client?.name || "Unknown"}</TableCell>
-                <TableCell>
-                  <Badge 
-                    variant={record.status === "Present" ? "default" : "destructive"}
-                    className={record.status === "Present" ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-red-100 text-red-800 hover:bg-red-100"}
-                  >
-                    {record.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="capitalize">{record.shift}</TableCell>
-                <TableCell className="capitalize">{record.type}</TableCell>
-              </TableRow>
-            );
-          })}
+          {sortedRecords.map((record) => (
+            <TableRow key={record.id}>
+              <TableCell>{record.date}</TableCell>
+              <TableCell>{record.employeeName || "Unknown"}</TableCell>
+              <TableCell>{record.clientName || "Unknown"}</TableCell>
+              <TableCell>
+                <Badge 
+                  variant={record.status === "Present" ? "default" : "destructive"}
+                  className={record.status === "Present" ? "bg-green-100 text-green-800 hover:bg-green-100" : "bg-red-100 text-red-800 hover:bg-red-100"}
+                >
+                  {record.status}
+                </Badge>
+              </TableCell>
+              <TableCell className="capitalize">{record.shift}</TableCell>
+              <TableCell className="capitalize">{record.type}</TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     </div>
